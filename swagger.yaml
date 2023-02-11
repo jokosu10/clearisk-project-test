@@ -1,0 +1,922 @@
+swagger: "2.0"
+info:
+  description: ""
+  version: "1.0.0"
+  title: "API Documentation Alta Store"
+  termsOfService: ""
+  contact:
+    email: ""
+host: ""
+basePath: "/"
+consumes: [application/json]
+produces: [application/json]
+schemes:
+- "http"
+- "https"
+
+# tags are used for organizing operations
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: customers
+  description: Operations available to regular customers
+
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+
+paths:
+  /login:
+    post:
+      description: 'login customer to access Alta Store return token data'
+      tags: [customers]
+      operationId: login customer
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'login'
+          in: 'body'
+          required: true
+          description: 'Login Payload'
+          schema:
+            $ref: '#/definitions/LoginInfo'
+      responses:
+        200:
+          description: Successful customers login
+          schema:
+            $ref: '#/definitions/LoginSuccess'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: Customer not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /register:
+    post:
+      description: 'Register customer to access Alta Store'
+      tags: [customers]
+      operationId: Register customers
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'register'
+          in: 'body'
+          required: true
+          description: 'Register customer payload'
+          schema:
+            $ref: '#/definitions/RegisterInfo'
+      responses:
+        200:
+          description: Successful register user
+          schema:
+            $ref: '#/definitions/RegisterSuccess'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: User not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /customers/{customerId}:
+    put:
+      description: 'Edit profile customers'
+      tags: [customers]
+      operationId: Edit profile customers
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'id'
+          in: 'path'
+          required: true
+          description: 'Id customer for update profile'
+          type: integer
+        - in: "body"
+          name: "body"
+          description: "Updated customer object"
+          required: true
+          schema:
+            $ref: "#/definitions/CustomersInfo"
+      responses:
+        200:
+          description: Successful update profile customers
+          schema:
+            $ref: '#/definitions/CustomersInfoUpdateProfileSuccess'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: Customer not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /categories:
+    get:
+      description: 'Get list all categories'
+      tags: [customers]
+      operationId: Get list all categories product
+      consumes:
+        - "application/json"
+      responses:
+        200:
+          description: Successful get list all categories product
+          schema:
+            $ref: '#/definitions/CategoriesAll'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: product not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /products:
+    get:
+      description: 'Get list all products'
+      tags: [customers]
+      operationId: Get list all product
+      consumes:
+        - "application/json"
+      responses:
+        200:
+          description: Successful get list all product
+          schema:
+            $ref: '#/definitions/ProductsAll'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: product not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /products/{categoriesId}:
+    get:
+      description: 'Get list all products by categories id'
+      tags: [customers]
+      operationId: Get list all products by categories id
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'id'
+          in: 'path'
+          required: true
+          description: 'Id categories for Get list all products by categories id'
+          type: integer
+      responses:
+        200:
+          description: Successful get list all product by categories id
+          schema:
+            $ref: '#/definitions/ProductsAllByCategoriesId'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: product not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /couriers:
+    get:
+      description: 'Get list all couriers'
+      tags: [customers]
+      operationId: Get list all couriers
+      consumes:
+        - "application/json"
+      responses:
+        200:
+          description: Successful get list all couriers
+          schema:
+            $ref: '#/definitions/CouriersAll'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: product not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /checkoutitems/{orderId}:
+    get:
+      description: 'Get checkout items by order id'
+      tags: [customers]
+      operationId: Get checkout items by order id
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'orderId'
+          in: 'path'
+          required: true
+          description: 'order id customer for update profile'
+          type: integer
+      responses:
+        200:
+          description: Successful get list all couriers
+          schema:
+            $ref: '#/definitions/CheckoutItemsByOrderId'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: product not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /carts/{cartId}:
+    put:
+      description: 'Edit status cart customers'
+      tags: [customers]
+      operationId: Edit status cart customers
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'id'
+          in: 'path'
+          required: true
+          description: 'Id carts customer'
+          type: integer
+        - in: "body"
+          name: "body"
+          description: "Updated status cart customer"
+          required: true
+          schema:
+            $ref: "#/definitions/CartsCustomersid"
+      responses:
+        200:
+          description: Successful update status carts customers
+          schema:
+            $ref: '#/definitions/CustomersPasswordInfoSuccess'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: Carts not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /cartitems:
+    post:
+      description: 'add items to carts'
+      tags: [customers]
+      operationId: add items to carts
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'cartitems'
+          in: 'body'
+          required: true
+          description: 'cartitems Payload'
+          schema:
+            $ref: '#/definitions/CartitemsInfo'
+      responses:
+        200:
+          description: Successful add items to carts
+          schema:
+            $ref: '#/definitions/CartitemsInfoSuccess'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: Customer not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+    get:
+      description: 'get all carts items in carts customers'
+      tags: [customers]
+      operationId: get all carts items in carts customers
+      consumes:
+        - "application/json"
+      responses:
+        200:
+          description: get all carts items in carts customers
+          schema:
+            $ref: '#/definitions/CartitemsAll'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: Cart items not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /cartitems/{cartitemsId}:
+    delete:
+      description: 'delete carts items in carts'
+      tags: [customers]
+      operationId: delete carts items in carts
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'id'
+          in: 'path'
+          required: true
+          description: 'Id carts items'
+          type: integer
+      responses:
+        200:
+          description: Successful delete carts items in carts
+          schema:
+            $ref: '#/definitions/CartitemsDeleteSuccess'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: Cart items not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+    put:
+      description: 'edit quantity carts items in carts'
+      tags: [customers]
+      operationId: edit quantity carts items in carts
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'id'
+          in: 'path'
+          required: true
+          description: 'Id carts items'
+          type: integer
+        - in: "body"
+          name: "body"
+          description: "Updated quantity carts items in carts"
+          required: true
+          schema:
+            $ref: "#/definitions/CartsItemsUpdateInfo"
+      responses:
+        200:
+          description: Successful update quantity carts items in carts
+          schema:
+            $ref: '#/definitions/CartitemsInfoSuccess'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: Cart items not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /orders:
+    post:
+      description: 'Customer add order and add payment'
+      tags: [customers]
+      operationId: Customer add order and add payment
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'orders'
+          in: 'body'
+          required: true
+          description: 'orders payload'
+          schema:
+            $ref: '#/definitions/OrdersInfo'
+      responses:
+        200:
+          description: Successful add order and add payment
+          schema:
+            $ref: '#/definitions/OrdersInfoSuccess'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: Order and payment not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /orders/{orderId}:
+    get:
+      description: 'get detail orders by id'
+      tags: [customers]
+      operationId: get detail orders by id
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'id'
+          in: 'path'
+          required: true
+          description: 'Id orders'
+          type: integer
+      responses:
+        200:
+          description: Successful get detail orders by id
+          schema:
+            $ref: '#/definitions/OrdersDetailSuccess'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: User not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+  /payments/{paymentsId}:
+    get:
+      description: 'get detail payments by id'
+      tags: [customers]
+      operationId: get detail payments by id
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'id'
+          in: 'path'
+          required: true
+          description: 'Id payments'
+          type: integer
+      responses:
+        200:
+          description: Successful get detail payments by id
+          schema:
+            $ref: '#/definitions/PaymentsDetailSuccess'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DefaultCode400'
+        404:
+          description: User not found
+          schema:
+            $ref: '#/definitions/DefaultCode404'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/DefaultCode500'
+definitions:
+  DefaultCode400:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+  DefaultCode404:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+  DefaultCode500:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+  LoginInfo:
+    type: object
+    required: [email,password]
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+  LoginSuccess:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          id:
+            type: integer
+          email:
+            type: string
+          token:
+            type: string
+  RegisterInfo:
+    type: object
+    required: [username,email,password]
+    properties:
+      username:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+  RegisterSuccess:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+  CustomersInfo:
+    type: object
+    required: [username,email,address,bank_name,bank_account_number]
+    properties:
+      username:
+        type: string
+      email:
+        type: string
+      address:
+        type: string
+      bank_name:
+        type: string
+      bank_account_number:
+        type: integer
+  CustomersInfoUpdateProfileSuccess:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          username:
+            type: string
+          email:
+            type: string
+          address:
+            type: string
+          bank_name:
+            type: string
+          bank_account_number:
+            type: integer
+  CustomersPasswordInfo:
+    type: object
+    required: [new_password, old_password]
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+  CustomersPasswordInfoSuccess:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+  CategoriesAll:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          name:
+            type: string
+          description:
+            type: string
+  ProductsAll:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          categories_id:
+            type: integer
+          name:
+            type: string
+          description:
+            type: string
+          quantity:
+            type: integer
+          price:
+            type: integer
+          unit:
+            type: string
+  ProductsAllByCategoriesId:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          categories_id:
+            type: integer
+          name:
+            type: string
+          description:
+            type: string
+          quantity:
+            type: integer
+          price:
+            type: integer
+          unit:
+            type: string
+  CouriersAll:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+  CheckoutItemsByOrderId:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          id:
+            type: integer
+          product_id:
+            type: integer
+          quantity:
+            type: integer
+  CartsCustomersid:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          status:
+            type: status
+  CartitemsInfo:
+    type: object
+    required: [cart_id,product_id,quantity]
+    properties:
+      cart_id:
+        type: integer
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+  CartitemsInfoSuccess:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          cart_id:
+            type: integer
+          product_id:
+            type: integer
+          quantity:
+            type: integer
+  CartitemsDeleteSuccess:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+  CartsItemsUpdateInfo:
+    type: object
+    required: [quantity]
+    properties:
+      quantity:
+        type: integer
+  CartitemsAll:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          id:
+            type: integer
+          cart_id:
+            type: integer
+          product_id:
+            type: integer
+          quantity:
+            type: integer
+  OrdersInfo:
+    type: object
+    required: [customers_id,courier_id,payment_method,payment_start_date,payment_end_date,payment_status,payment_amount]
+    properties:
+      customers_id:
+        type: integer
+      courier_id:
+        type: integer
+      payment_method:
+        type: string
+      payment_start_date:
+        type: string
+        format: date-time
+        example: "2021-02-11 10:00:00"
+      payment_end_date:
+        type: string
+        format: date-time
+        example: "2021-02-11 11:00:00"
+      payment_status:
+        type: string
+      payment_amount:
+        type: integer
+  OrdersInfoSuccess:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          customers_id:
+            type: integer
+          courier_id:
+            type: integer
+          payment_method:
+            type: string
+          payment_start_date:
+            type: string
+            format: date-time
+            example: "2021-02-11 10:00:00"
+          payment_end_date:
+            type: string
+            format: date-time
+            example: "2021-02-11 11:00:00"
+          payment_status:
+            type: string
+          payment_amount:
+            type: integer
+  OrdersDetailSuccess:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          id:
+            type: integer
+          customer_id:
+            type: integer
+          couriers_id:
+            type: integer
+          address:
+            type: string
+  PaymentsDetailSuccess:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          id:
+            type: integer
+          orders_id:
+            type: integer
+          payment_method:
+            type: string
+          payment_start_date:
+            type: string
+            format: date-time
+            example: "2021-02-11 10:00:00"
+          payment_end_date:
+            type: string
+            format: date-time
+            example: "2021-02-11 11:00:00"
+          payment_status:
+            type: string
+          payment_amount:
+            type: integer
