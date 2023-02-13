@@ -3,10 +3,10 @@ package controllers
 import (
 	"encoding/csv"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"project-alta-store/lib/utils"
 	"project-alta-store/models"
 	"strconv"
 
@@ -61,7 +61,7 @@ func createOrganizationList(data [][]string) []initalOrganizationRecord {
 	return organizationList
 }
 
-func OrganizationAPI(c echo.Context) error {
+func GetOrganizations(c echo.Context) error {
 
 	f, err := os.Open("organizations-1000000.csv")
 	if err != nil {
@@ -78,101 +78,166 @@ func OrganizationAPI(c echo.Context) error {
 		log.Fatal(err)
 	}
 
-	// convert records to array of structs
+	// convert array to struct
 	organizationList := createOrganizationList(data)
 
 	j, _ := json.MarshalIndent(organizationList, "", "  ")
 
 	var resOrganization []models.Organizations
 
-	if err := json.Unmarshal([]byte(string(j)), &resOrganization); err != nil {
-		panic(err)
-	}
+	if utils.StringIsNotNumber(c.QueryParam("id")) {
+		id, _ := strconv.Atoi(c.QueryParam("id"))
 
-	res := models.Organization_response{
-		Code:    200,
-		Status:  "Success",
-		Message: "Success",
-		Data:    resOrganization,
+		if err := json.Unmarshal([]byte(string(j)), &resOrganization); err != nil {
+			panic(err)
+		}
+
+		for i, _ := range organizationList {
+			var resOrgById = models.Organization_response_single{
+				Code:    200,
+				Status:  "Success",
+				Message: "Find data",
+				Data:    resOrganization[i],
+			}
+
+			if id == resOrgById.Data.Index {
+				return c.JSON(http.StatusOK, resOrgById)
+			}
+
+		}
+
+		return echo.NewHTTPError(http.StatusBadRequest, models.ErrorResponse{
+			Code:    400,
+			Status:  "fail",
+			Message: "invalid id supplied",
+		})
+
+	} else if len(c.QueryParam("id")) > 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, models.ErrorResponse{
+			Code:    400,
+			Status:  "fail",
+			Message: "invalid id supplied",
+		})
+	} else {
+
+		if err := json.Unmarshal([]byte(string(j)), &resOrganization); err != nil {
+			panic(err)
+		}
+
+		resAllOrg := models.Organization_response{
+			Code:    200,
+			Status:  "Success",
+			Message: "Success",
+			Data:    resOrganization,
+		}
+		return c.JSON(http.StatusOK, resAllOrg)
 	}
-	return c.JSON(http.StatusOK, res)
 }
 
-func CreateOrganization(c echo.Context) error {
-	var post_body models.Organization_post
-	// var pts models.Organizations
-	// var organizationStruct models.ListOrganization
+// func GetOrganizationById(c echo.Context) error {
+// 	file, err := os.Open("organizations-1000000.csv")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
 
-	if e := c.Bind(&post_body); e != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
-			"code":    400,
-			"status":  "error",
-			"message": e.Error(),
-		})
-	}
-	if e := models.Validate.Struct(post_body); e != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
-			"code":    400,
-			"status":  "Error",
-			"message": e.Error(),
-		})
-	}
+// 	// remember to close the file at the end of the program
+// 	defer file.Close()
 
-	var organization models.Organizations
-	organization.ID = post_body.ID
-	organization.Name = post_body.Name
-	organization.Website = post_body.Website
-	organization.Country = post_body.Country
-	organization.Description = post_body.Description
-	organization.Founded = post_body.Founded
-	organization.Industry = post_body.Industry
-	organization.NumOfEmployee = post_body.NumOfEmployee
+// 	// read csv values using csv.Reader
+// 	reader := csv.NewReader(file)
 
-	file, err := os.Create("organizations-1000000.csv")
-	defer file.Close()
-	if err != nil {
-		log.Fatalln("failed to open file", err)
-	}
-	w := csv.NewWriter(file)
-	defer w.Flush()
+// 	for {
+// 		each_record, err := reader.Read()
+// 		if err != nil || err == io.EOF {
 
-	// Using WriteAll
+// 			log.Fatal(err)
+// 			break
+// 		}
 
-	var head [9]string
-	var row [9]string
+// 		for value := range each_record {
+// 			fmt.Printf("%s\n", each_record[value])
+// 			fmt.Println("====end======")
+// 		}
+// 	}
 
-	// values := [][]string{}
+// 	return c.JSON(http.StatusOK, res)
+// }
 
-	row[1] = organization.ID
-	row[2] = organization.Name
-	row[3] = organization.Website
-	row[4] = organization.Country
-	row[5] = organization.Description
-	row[6] = strconv.Itoa(organization.Founded)
-	row[7] = organization.Industry
-	row[8] = strconv.Itoa(organization.NumOfEmployee)
+// func CreateOrganization(c echo.Context) error {
+// 	var post_body models.Organization_post
+// 	// var pts models.Organizations
+// 	// var organizationStruct models.ListOrganization
 
-	head[1] = "Organization Id"
-	head[2] = "Name"
-	head[3] = "Website"
-	head[4] = "Country"
-	head[5] = "Description"
-	head[6] = "Founded"
-	head[7] = "Industry"
-	head[8] = "Number of employees"
+// 	if e := c.Bind(&post_body); e != nil {
+// 		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
+// 			"code":    400,
+// 			"status":  "error",
+// 			"message": e.Error(),
+// 		})
+// 	}
+// 	if e := models.Validate.Struct(post_body); e != nil {
+// 		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
+// 			"code":    400,
+// 			"status":  "Error",
+// 			"message": e.Error(),
+// 		})
+// 	}
 
-	// values = append(values, head)
-	// values = append(values, row)
+// 	var organization models.Organizations
+// 	organization.ID = post_body.ID
+// 	organization.Name = post_body.Name
+// 	organization.Website = post_body.Website
+// 	organization.Country = post_body.Country
+// 	organization.Description = post_body.Description
+// 	organization.Founded = post_body.Founded
+// 	organization.Industry = post_body.Industry
+// 	organization.NumOfEmployee = post_body.NumOfEmployee
 
-	fmt.Print("Data head ", head)
-	fmt.Println()
-	fmt.Print("Data row ", row)
-	fmt.Println()
-	// fmt.Print("Data values ", values)
+// 	file, err := os.Create("organizations-1000000.csv")
+// 	defer file.Close()
+// 	if err != nil {
+// 		log.Fatalln("failed to open file", err)
+// 	}
+// 	w := csv.NewWriter(file)
+// 	defer w.Flush()
 
-	return c.JSON(http.StatusOK, models.Organization_response_single{
-		Code:    200,
-		Status:  "success",
-		Message: "success add Organization",
-	})
-}
+// 	// Using WriteAll
+
+// 	var head [9]string
+// 	var row [9]string
+
+// 	// values := [][]string{}
+
+// 	row[1] = organization.ID
+// 	row[2] = organization.Name
+// 	row[3] = organization.Website
+// 	row[4] = organization.Country
+// 	row[5] = organization.Description
+// 	row[6] = strconv.Itoa(organization.Founded)
+// 	row[7] = organization.Industry
+// 	row[8] = strconv.Itoa(organization.NumOfEmployee)
+
+// 	head[1] = "Organization Id"
+// 	head[2] = "Name"
+// 	head[3] = "Website"
+// 	head[4] = "Country"
+// 	head[5] = "Description"
+// 	head[6] = "Founded"
+// 	head[7] = "Industry"
+// 	head[8] = "Number of employees"
+
+// 	// values = append(values, head)
+// 	// values = append(values, row)
+
+// 	fmt.Print("Data head ", head)
+// 	fmt.Println()
+// 	fmt.Print("Data row ", row)
+// 	fmt.Println()
+// 	// fmt.Print("Data values ", values)
+
+// 	return c.JSON(http.StatusOK, models.Organization_response_single{
+// 		Code:    200,
+// 		Status:  "success",
+// 		Message: "success add Organization",
+// 	})
+// }

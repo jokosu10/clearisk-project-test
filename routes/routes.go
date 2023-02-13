@@ -17,7 +17,7 @@ func Start() *echo.Echo {
 	e.Static("/swaggerui", "dist/index.html")
 
 	e.GET("/test", controllers.HomeAPI)
-	e.GET("/organizations", controllers.OrganizationAPI)
-	e.POST("/organization", controllers.CreateOrganization)
+	e.GET("/organizations", controllers.GetOrganizations)
+	// e.POST("/organization", controllers.CreateOrganization)
 	return e
 }
