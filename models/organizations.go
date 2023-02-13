@@ -33,8 +33,10 @@ type Organization_post struct {
 }
 
 type Organization_response_single struct {
+	// Start   int    `json:"-"`
 	Code    int    `json:"code"`
 	Status  string `json:"status"`
 	Message string `json:"message"`
-	// Data    Organizations `json:"data"`
+	// End     int    `json:"-"`
+	Data Organizations `json:"data"`
 }
