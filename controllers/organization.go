@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"bufio"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -240,4 +242,56 @@ func CreateOrganization(c echo.Context) error {
 		Status:  "success",
 		Message: "success add Organization",
 	})
+}
+
+func DeleteOrganization(c echo.Context) error {
+
+	f, err := os.Open("organizations-1000000.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	w := csv.NewWriter(f)
+	defer w.Flush()
+	rows, err := readSample(f)
+	organizationList := createOrganizationList(rows)
+
+	if err != nil {
+		log.Println("Cannot read CSV file:", err)
+	}
+
+	// Using WriteAll
+	var data [][]string
+	for _, record := range organizationList {
+		row := []string{record.ID, record.Name, record.Website, record.Country, record.Description, strconv.FormatInt(int64(record.Founded), 10), record.Industry, strconv.FormatInt(int64(record.NumOfEmployee), 10)}
+		data = append(data, row)
+	}
+	w.WriteAll(data)
+
+	return c.JSON(http.StatusOK, models.SuccessResponse{
+		Code:    200,
+		Status:  "success",
+		Message: "success delete Organization",
+	})
+
+}
+
+func readSample(rs io.ReadSeeker) ([][]string, error) {
+	// Skip first row (line)
+	row1, err := bufio.NewReader(rs).ReadSlice('\n')
+	if err != nil {
+		return nil, err
+	}
+	_, err = rs.Seek(int64(len(row1)), io.SeekStart)
+	if err != nil {
+		return nil, err
+	}
+
+	// Read remaining rows
+	r := csv.NewReader(rs)
+	rows, err := r.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
 }
