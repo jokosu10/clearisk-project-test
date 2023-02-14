@@ -18,6 +18,6 @@ func Start() *echo.Echo {
 
 	e.GET("/test", controllers.HomeAPI)
 	e.GET("/organizations", controllers.GetOrganizations)
-	// e.POST("/organization", controllers.CreateOrganization)
+	e.POST("/organization", controllers.CreateOrganization)
 	return e
 }

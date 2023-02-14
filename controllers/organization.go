@@ -3,12 +3,14 @@ package controllers
 import (
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"project-alta-store/lib/utils"
 	"project-alta-store/models"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo"
 )
@@ -23,6 +25,10 @@ type initalOrganizationRecord struct {
 	Founded       int
 	Industry      string
 	NumOfEmployee int
+}
+
+type Stringer interface {
+	String() string
 }
 
 func createOrganizationList(data [][]string) []initalOrganizationRecord {
@@ -134,110 +140,104 @@ func GetOrganizations(c echo.Context) error {
 	}
 }
 
-// func GetOrganizationById(c echo.Context) error {
-// 	file, err := os.Open("organizations-1000000.csv")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+func addcol(fname string, column []string) error {
+	// read the file
+	f, err := os.Open(fname)
+	if err != nil {
+		return err
+	}
+	r := csv.NewReader(f)
+	lines, err := r.ReadAll()
+	if err != nil {
+		return err
+	}
+	if err = f.Close(); err != nil {
+		return err
+	}
 
-// 	// remember to close the file at the end of the program
-// 	defer file.Close()
+	// add column
+	l := len(lines)
+	if len(column) < l {
+		l = len(column)
+	}
+	for i := 0; i < l; i++ {
+		lines[i] = append(lines[i], column[i])
+	}
 
-// 	// read csv values using csv.Reader
-// 	reader := csv.NewReader(file)
+	// write the file
+	f, err = os.Create(fname)
+	if err != nil {
+		return err
+	}
+	w := csv.NewWriter(f)
+	if err = w.WriteAll(lines); err != nil {
+		f.Close()
+		return err
+	}
+	return f.Close()
+}
 
-// 	for {
-// 		each_record, err := reader.Read()
-// 		if err != nil || err == io.EOF {
+func CreateOrganization(c echo.Context) error {
+	var post_body models.Organization_post
 
-// 			log.Fatal(err)
-// 			break
-// 		}
+	f, err := os.Open("organizations-1000000.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 		for value := range each_record {
-// 			fmt.Printf("%s\n", each_record[value])
-// 			fmt.Println("====end======")
-// 		}
-// 	}
+	// remember to close the file at the end of the program
+	defer f.Close()
 
-// 	return c.JSON(http.StatusOK, res)
-// }
+	// read csv values using csv.Reader
+	csvReader := csv.NewReader(f)
+	_, err = csvReader.ReadAll()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// func CreateOrganization(c echo.Context) error {
-// 	var post_body models.Organization_post
-// 	// var pts models.Organizations
-// 	// var organizationStruct models.ListOrganization
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 	if e := c.Bind(&post_body); e != nil {
-// 		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
-// 			"code":    400,
-// 			"status":  "error",
-// 			"message": e.Error(),
-// 		})
-// 	}
-// 	if e := models.Validate.Struct(post_body); e != nil {
-// 		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
-// 			"code":    400,
-// 			"status":  "Error",
-// 			"message": e.Error(),
-// 		})
-// 	}
+	if e := c.Bind(&post_body); e != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
+			"code":    400,
+			"status":  "error",
+			"message": e.Error(),
+		})
+	}
+	if e := models.Validate.Struct(post_body); e != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
+			"code":    400,
+			"status":  "Error",
+			"message": e.Error(),
+		})
+	}
 
-// 	var organization models.Organizations
-// 	organization.ID = post_body.ID
-// 	organization.Name = post_body.Name
-// 	organization.Website = post_body.Website
-// 	organization.Country = post_body.Country
-// 	organization.Description = post_body.Description
-// 	organization.Founded = post_body.Founded
-// 	organization.Industry = post_body.Industry
-// 	organization.NumOfEmployee = post_body.NumOfEmployee
+	var u models.Organizations
+	u.Index = 8
+	u.ID = post_body.ID
+	u.Name = post_body.Name
+	u.Website = post_body.Website
+	u.Country = post_body.Country
+	u.Description = post_body.Description
+	u.Founded = post_body.Founded
+	u.Industry = post_body.Industry
+	u.NumOfEmployee = post_body.NumOfEmployee
+	stringSlice := []string{strconv.FormatInt(int64(u.Index), 10), u.ID, u.Name, u.Website, u.Country, u.Description, strconv.FormatInt(int64(u.Founded), 10), u.Industry, strconv.FormatInt(int64(u.NumOfEmployee), 10)}
+	stringByte := "\x00" + strings.Join(stringSlice, "\x20\x00") // x20 = space and x00 = null
 
-// 	file, err := os.Create("organizations-1000000.csv")
-// 	defer file.Close()
-// 	if err != nil {
-// 		log.Fatalln("failed to open file", err)
-// 	}
-// 	w := csv.NewWriter(file)
-// 	defer w.Flush()
+	fmt.Println(stringSlice)
+	fmt.Println(string([]byte(stringByte)))
+	a := append(stringSlice, string([]byte(stringByte)))
 
-// 	// Using WriteAll
+	if err := addcol("organizations-1000000.csv", a); err != nil {
+		panic(err)
+	}
 
-// 	var head [9]string
-// 	var row [9]string
-
-// 	// values := [][]string{}
-
-// 	row[1] = organization.ID
-// 	row[2] = organization.Name
-// 	row[3] = organization.Website
-// 	row[4] = organization.Country
-// 	row[5] = organization.Description
-// 	row[6] = strconv.Itoa(organization.Founded)
-// 	row[7] = organization.Industry
-// 	row[8] = strconv.Itoa(organization.NumOfEmployee)
-
-// 	head[1] = "Organization Id"
-// 	head[2] = "Name"
-// 	head[3] = "Website"
-// 	head[4] = "Country"
-// 	head[5] = "Description"
-// 	head[6] = "Founded"
-// 	head[7] = "Industry"
-// 	head[8] = "Number of employees"
-
-// 	// values = append(values, head)
-// 	// values = append(values, row)
-
-// 	fmt.Print("Data head ", head)
-// 	fmt.Println()
-// 	fmt.Print("Data row ", row)
-// 	fmt.Println()
-// 	// fmt.Print("Data values ", values)
-
-// 	return c.JSON(http.StatusOK, models.Organization_response_single{
-// 		Code:    200,
-// 		Status:  "success",
-// 		Message: "success add Organization",
-// 	})
-// }
+	return c.JSON(http.StatusOK, models.SuccessResponse{
+		Code:    200,
+		Status:  "success",
+		Message: "success add Organization",
+	})
+}
