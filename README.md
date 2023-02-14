@@ -9,7 +9,7 @@ How to run this project :
 1. git clone `https://github.com/jokosu10/clearisk-project-test.git`
 2. cd `clearisk-project-test` and run `go install`
 3. run command `go run main.go` to running this server like this `localhost:8000`
-4. run command `go test ./controller/ -cover` for running unit testing
+4. open postman, then import using link `https://www.postman.com/blue-space-9704/workspace/for-public/collection/1684235-77dab519-c69e-4540-aadc-046e06b3906e?action=share&creator=1684235`
 
 ## HTTP requests
 
