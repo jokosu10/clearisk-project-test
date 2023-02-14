@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -141,14 +140,6 @@ func GetOrganizations(c echo.Context) error {
 	}
 }
 
-// func createKeyValuePairs(m map[string]string) string {
-// 	b := new(bytes.Buffer)
-// 	for key, value := range m {
-// 		fmt.Fprintf(b, "%s=\"%s\"\n", key, value)
-// 	}
-// 	return b.String()
-// }
-
 func addcol(fname string, column []string) error {
 	// read the file
 	f, err := os.Open(fname)
@@ -186,13 +177,6 @@ func addcol(fname string, column []string) error {
 	return f.Close()
 }
 
-// func (m models.Organizations) String() string {
-// 	return fmt.Sprintf(
-// 		"{ Index: %d, Organization Id : %s, Name : %s, Website : %s, Country : %s, Description : %s, Founded: %d, Industry : %s, Number of employees : %d }",
-// 		m.ID, m.Name, m.Website, m.Country, m.Description, m.Founded, m.Industry, m.NumOfEmployee,
-// 	)
-// }
-
 func CreateOrganization(c echo.Context) error {
 	var post_body models.Organization_post
 
@@ -206,17 +190,11 @@ func CreateOrganization(c echo.Context) error {
 
 	// read csv values using csv.Reader
 	csvReader := csv.NewReader(f)
-	data, err := csvReader.ReadAll()
+	_, err = csvReader.ReadAll()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	leg := len(data)
-
-	fmt.Println("total no of rows:", leg)
-
-	// convert array to struct
-	// organizationList := createOrganizationList(data)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -236,9 +214,6 @@ func CreateOrganization(c echo.Context) error {
 		})
 	}
 
-	// u := []models.Organizations{
-	// 	{Index: 8, ID: post_body.ID, Name: post_body.Name, Website: post_body.Website, Country: post_body.Country, Description: post_body.Description, Founded: post_body.Founded, Industry: post_body.Industry, NumOfEmployee: post_body.NumOfEmployee},
-	// }
 	var u models.Organizations
 	u.Index = 8
 	u.ID = post_body.ID
@@ -249,118 +224,16 @@ func CreateOrganization(c echo.Context) error {
 	u.Founded = post_body.Founded
 	u.Industry = post_body.Industry
 	u.NumOfEmployee = post_body.NumOfEmployee
-	// index := make([]string, 0, 8)
-	// id := post_body.ID
-	// name := post_body.Name
-	// website := post_body.Website
-	// country := post_body.Country
-	// description := post_body.Description
-	// founded := make([]string, 0, post_body.Founded)
-	// industry := post_body.Industry
-	// noe := make([]string, 0, post_body.NumOfEmployee)
-	// indexBro := leg + 1
-	index := make([]string, 0, leg)
-	id := make([]string, 0, leg)
-	name := make([]string, 0, leg)
-	website := make([]string, 0, leg)
-	country := make([]string, 0, leg)
-	description := make([]string, 0, leg)
-	founded := make([]string, 0, leg)
-	industry := make([]string, 0, leg)
-	noe := make([]string, 0, leg)
+	stringSlice := []string{strconv.FormatInt(int64(u.Index), 10), u.ID, u.Name, u.Website, u.Country, u.Description, strconv.FormatInt(int64(u.Founded), 10), u.Industry, strconv.FormatInt(int64(u.NumOfEmployee), 10)}
+	stringByte := "\x00" + strings.Join(stringSlice, "\x20\x00") // x20 = space and x00 = null
 
-	// fmt.Println("===============")
-	// fmt.Println(u)
+	fmt.Println(stringSlice)
+	fmt.Println(string([]byte(stringByte)))
+	a := append(stringSlice, string([]byte(stringByte)))
 
-	// b, err := json.Marshal(u)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// var a interface{}
-	// err = json.Unmarshal(b, &a)
-	// if err != nil {
-	// 	fmt.Println("error:", err)
-	// }
-
-	// csvWriter := csv.NewWriter(f)
-	for _, value := range data {
-		if len(value) < 9 {
-			continue // skip short records
-		}
-
-		// fmt.Println(len(value))
-		index := append(index, strconv.FormatInt(int64(u.Index), 10))
-		id := append(id, u.ID)
-		name := append(name, u.Name)
-		website := append(website, u.Website)
-		country := append(country, u.Country)
-		description := append(description, u.Description)
-		founded := append(founded, strconv.FormatInt(int64(u.Founded), 10))
-		industry := append(industry, u.Industry)
-		noe := append(noe, strconv.FormatInt(int64(u.NumOfEmployee), 10))
-		// fmt.Print("Field: %s\t Value: %v\n", typesOf.Field(i).Name, values.Field(i).Interface())
-		// row := `index,`
-		// fmt.Println(string{index})
-		// fmt.Println(id)
-		// fmt.Println(name)
-		// ioutil.WriteFile("organizations-1000000.csv", []byte(row), 0666)
-
-		// sIndex := strconv.FormatInt(int64(), 10)
-		// sNoe := strconv.FormatInt(int64(record.NumOfEmployee), 10)
-		// row := []string{strconv.FormatInt(int64(value), 10), value.ID, value.Name, value.Website, value.Country, value.Description, strconv.FormatInt(int64(value.Founded), 10), value.Industry, strconv.FormatInt(int64(value.NumOfEmployee), 10)}
-		// // row := []string{value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7]}
-		// // struct_v := fmt.Sprintf("%+v", row)
-		// v, err := json.Marshal(row)
-		// if err != nil {
-		// 	panic(err)
-		// }
-
-		// fmt.Println(row)
-		// fmt.Println("=================")
-		// fmt.Println(string(v))
-
-		// fmt.Println(string(out), err)
-		// fmt.Println(struct_v)
-		// var string resFinal = fmt.Println(struct_v)
-		// w := csv.NewWriter(f)
-		// fmt.Println(structStr) // { name: Yuto, age: 35 }
-		// csvWriter.Write([]string{row[i]})
-		// if err := w.Write(row); err != nil {
-		//         log.Fatalln("error writing record to file", err)
-		//     }
-		//for i, v := range data {
-		// x := []string{"column two", "a", "b", "c", "d"}
-		// fmt.Println("==============start col=========")
-		// fmt.Println([]string{string(createKeyValuePairs(u))})
-		// fmt.Println(len(filedata))
-		// fmt.Println(col)
-		// fmt.Println([]string{string(createKeyValuePairs(u))})
-		// fmt.Println([]string{string(v)})
-		// fmt.Println(col)
-		// fmt.Println("==============end col=========")
-		// fmt.Println(v)
-		// if len(col) < 6 {
-		// 	continue // skip short records
-		// }
-		stringSlice := []string{index[0], id[0], name[0], website[0], country[0], description[0], founded[0], industry[0], noe[0]}
-		stringByte := "\x00" + strings.Join(stringSlice, "\x20\x00") // x20 = space and x00 = null
-
-		fmt.Println([]byte(stringByte))
-		fmt.Println(string([]byte(stringByte)))
-		ioutil.WriteFile("organizations-1000000.csv", []byte(stringByte), 0666)
-
-		// if err := addcol(filepath, []string{string(v)}); err != nil {
-		// 	panic(err)
-		// }
-		// var resOrgById = models.Organization_response_single{
-		// 	Code:    200,
-		// 	Status:  "Success",
-		// 	Message: "Find data",
-		// 	Data:    resOrganization[i],
-
+	if err := addcol("organizations-1000000.csv", a); err != nil {
+		panic(err)
 	}
-	// csvWriter.Flush()
 
 	return c.JSON(http.StatusOK, models.SuccessResponse{
 		Code:    200,
