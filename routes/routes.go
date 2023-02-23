@@ -16,10 +16,15 @@ func Start() *echo.Echo {
 	e.Static("/swagger.yaml", "swagger.yaml")
 	e.Static("/swaggerui", "dist/index.html")
 
-	e.GET("/test", controllers.HomeAPI)
+	e.GET("/test/organizations", controllers.TestOrganizatiosAPI)
 	e.GET("/organizations", controllers.GetOrganizations)
 	e.POST("/organization", controllers.CreateOrganization)
 	e.DELETE("/organization/:id", controllers.DeleteOrganization)
+
+	e.GET("/test/payments", controllers.TestPaymentsAPI)
+	// e.GET("/organizations", controllers.GetOrganizations)
+	// e.POST("/organization", controllers.CreateOrganization)
+	// e.DELETE("/organization/:id", controllers.DeleteOrganization)
 
 	return e
 }

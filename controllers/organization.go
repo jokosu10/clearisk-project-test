@@ -29,8 +29,12 @@ type initalOrganizationRecord struct {
 	NumOfEmployee int
 }
 
-type Stringer interface {
-	String() string
+// type Stringer interface {
+// 	String() string
+// }
+
+func TestOrganizatiosAPI(c echo.Context) error {
+	return c.String(http.StatusOK, "Organizations API. API is Active")
 }
 
 func createOrganizationList(data [][]string) []initalOrganizationRecord {
@@ -231,9 +235,9 @@ func CreateOrganization(c echo.Context) error {
 
 	fmt.Println(stringSlice)
 	fmt.Println(string([]byte(stringByte)))
-	a := append(stringSlice, string([]byte(stringByte)))
+	// a := append(stringSlice, string([]byte(stringByte)))
 
-	if err := addcol("organizations-1000000.csv", a); err != nil {
+	if err := addcol("organizations-1000000.csv", stringSlice); err != nil {
 		panic(err)
 	}
 
