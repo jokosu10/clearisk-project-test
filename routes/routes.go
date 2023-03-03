@@ -22,7 +22,7 @@ func Start() *echo.Echo {
 	e.DELETE("/organization/:id", controllers.DeleteOrganization)
 
 	e.GET("/test/payments", controllers.TestPaymentsAPI)
-	// e.GET("/organizations", controllers.GetOrganizations)
+	e.GET("/orgbycountry", controllers.GetStatisticOrgByCountryAPI)
 	// e.POST("/organization", controllers.CreateOrganization)
 	// e.DELETE("/organization/:id", controllers.DeleteOrganization)
 
