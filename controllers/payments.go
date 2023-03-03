@@ -1,11 +1,7 @@
 package controllers
 
 import (
-	"encoding/csv"
-	"fmt"
 	"net/http"
-	"os"
-
 	"github.com/go-gota/gota/dataframe"
 	"github.com/labstack/echo"
 	// "github.com/go-gota/gota"
