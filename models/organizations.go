@@ -12,8 +12,6 @@ type Organizations struct {
 	NumOfEmployee int
 }
 
-// type ListOrganization []Organizations
-
 type Organization_response struct {
 	Code    int             `json:"code"`
 	Status  string          `json:"status"`

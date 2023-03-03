@@ -2,103 +2,49 @@ package controllers
 
 import (
 	"net/http"
-
+	"github.com/go-gota/gota/dataframe"
 	"github.com/labstack/echo"
+	// "github.com/go-gota/gota"
+	// "github.com/kniren/gota"
 )
 
 func TestPaymentsAPI(c echo.Context) error {
 	return c.String(http.StatusOK, "Payments API. API is Active")
 }
 
-Series_reference => string
-Period	=> float
-Data_value	=> int
-Suppressed	=> string
-STATUS	=> string
-UNITS => string
-MAGNTUDE => int
-Subject => string
-Group => string
-Series_title_1 => string
+func ReadCsv(filename string) ([][]string, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return [][]string{}, err
+	}
+	defer file.Close()
 
-type statsOrgByCountry struct {
-	Series_reference         string
-	Period            float32
-	Name          string
-	Website       string
-	Country       string
-	Description   string
-	Founded       int
-	Industry      string
-	NumOfEmployee int
+	records, err := csv.NewReader(file).ReadAll()
+	if err != nil {
+		return [][]string{}, err
+	}
+
+	return records, nil
 }
 
-// func createOrganizationList(data [][]string) []initalOrganizationRecord {
-// 	var organizationList []initalOrganizationRecord
-// 	for i, line := range data {
-// 		if i > 0 { // omit header line
-// 			var rec initalOrganizationRecord
-// 			for j, field := range line {
+func GetStatisticOrgByCountryAPI(c echo.Context) error {
+	// const iota = 7 // Untyped int.
 
-// 				if j == 0 {
-// 					index, _ := strconv.Atoi(field)
-// 					rec.Index = index
-// 				} else if j == 1 {
-// 					rec.ID = field
-// 				} else if j == 2 {
-// 					rec.Name = field
-// 				} else if j == 3 {
-// 					rec.Website = field
-// 				} else if j == 4 {
-// 					rec.Country = field
-// 				} else if j == 5 {
-// 					rec.Description = field
-// 				} else if j == 6 {
-// 					yearFounded, _ := strconv.Atoi(field)
-// 					rec.Founded = yearFounded
-// 				} else if j == 7 {
-// 					rec.Industry = field
-// 				} else if j == 8 {
-// 					valueNumOfEmployee, _ := strconv.Atoi(field)
-// 					rec.NumOfEmployee = valueNumOfEmployee
-// 				}
-// 			}
-// 			organizationList = append(organizationList, rec)
-// 		}
-// 	}
-// 	return organizationList
-// }
+	csvString, err := os.Open("organizations-1000000.csv")
 
-// func GetStatisticOrgByCountry(c echo.Context) error {
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+	}
 
-// 	f, err := os.Open("organizations-1000000.csv")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+	// remember to close the file at the end of the program
+	defer csvString.Close()
 
-// 	// remember to close the file at the end of the program
-// 	defer f.Close()
+	df := dataframe.ReadCSV(csvString)
+	selectedColumn := df.Select([]string{"Country", "Number of employees"})
+	groupByCountry := selectedColumn.GroupBy("Country")                                                                         // Group by column "key1", and column "key2"
+	countByCountry := groupByCountry.Aggregation([]dataframe.AggregationType{dataframe.Aggregation_COUNT}, []string{"Country"}) // Maximum value in column "values",  Minimum value in column "values2"
 
-// 	// read csv values using csv.Reader
-// 	csvReader := csv.NewReader(f)
-// 	data, err := csvReader.ReadAll()
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+	loadResultDf := countByCountry.Records()
 
-// 	// convert array to struct
-// 	organizationList := createOrganizationList(data)
-
-// 	j, _ := json.MarshalIndent(organizationList, "", "  ")
-
-// 	var resOrganizationsByCountry []models.OrganizationsByCountry_response
-
-// 	resAllOrg := models.Organization_response{
-// 		Code:    200,
-// 		Status:  "Success",
-// 		Message: "Success",
-// 		Data:    resOrganizationsByCountry,
-// 	}
-// 	return c.JSON(http.StatusOK, resAllOrg)
-
-// }
+	return c.JSON(http.StatusOK, loadResultDf)
+}
