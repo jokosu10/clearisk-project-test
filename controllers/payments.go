@@ -1,7 +1,12 @@
 package controllers
 
 import (
+	"encoding/csv"
+	"fmt"
 	"net/http"
+	"os"
+	"project-alta-store/models"
+
 	"github.com/go-gota/gota/dataframe"
 	"github.com/labstack/echo"
 	// "github.com/go-gota/gota"
@@ -28,8 +33,6 @@ func ReadCsv(filename string) ([][]string, error) {
 }
 
 func GetStatisticOrgByCountryAPI(c echo.Context) error {
-	// const iota = 7 // Untyped int.
-
 	csvString, err := os.Open("organizations-1000000.csv")
 
 	if err != nil {
@@ -39,12 +42,30 @@ func GetStatisticOrgByCountryAPI(c echo.Context) error {
 	// remember to close the file at the end of the program
 	defer csvString.Close()
 
+	var resStatsOrgByCountry []models.StatisticOrg
+
 	df := dataframe.ReadCSV(csvString)
-	selectedColumn := df.Select([]string{"Country", "Number of employees"})
-	groupByCountry := selectedColumn.GroupBy("Country")                                                                         // Group by column "key1", and column "key2"
-	countByCountry := groupByCountry.Aggregation([]dataframe.AggregationType{dataframe.Aggregation_COUNT}, []string{"Country"}) // Maximum value in column "values",  Minimum value in column "values2"
+	selectedColumn := df.Select([]string{"Country"})
+	groupByCountry := selectedColumn.GroupBy("Country")
+	countByCountry := groupByCountry.Aggregation([]dataframe.AggregationType{dataframe.Aggregation_COUNT}, []string{"Country"})
 
 	loadResultDf := countByCountry.Records()
 
-	return c.JSON(http.StatusOK, loadResultDf)
+	for i, v := range loadResultDf {
+		if i != 0 {
+			resStatsOrgByCountry = append(resStatsOrgByCountry, models.StatisticOrg{
+				Country:       v[0],
+				Country_COUNT: v[1],
+			})
+		}
+	}
+
+	finalDataStatsOrgByCountry := models.StatsOrgByCountry_response_single{
+		Code:    200,
+		Status:  "Success",
+		Message: "Success",
+		Data:    resStatsOrgByCountry,
+	}
+	return c.JSON(http.StatusOK, finalDataStatsOrgByCountry)
+
 }
