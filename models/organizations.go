@@ -17,6 +17,11 @@ type StatisticOrg struct {
 	Country_COUNT string
 }
 
+type StatisticOrgByNoe struct {
+	NameOrg       string
+	NumOfEmployee int
+}
+
 type Organization_response struct {
 	Code    int             `json:"code"`
 	Status  string          `json:"status"`
@@ -47,4 +52,11 @@ type StatsOrgByCountry_response_single struct {
 	Status  string         `json:"status"`
 	Message string         `json:"message"`
 	Data    []StatisticOrg `json:"data"`
+}
+
+type StatsTopTenOrgByNoe_response_single struct {
+	Code    int                 `json:"code"`
+	Status  string              `json:"status"`
+	Message string              `json:"message"`
+	Data    []StatisticOrgByNoe `json:"data"`
 }
