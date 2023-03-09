@@ -119,7 +119,7 @@ func GetTopTenOrgByNoeAPI(c echo.Context) error {
 	return c.JSON(http.StatusOK, finalDataStatsTopTenOrgByNoe)
 }
 
-func GetSumOfBalanceOfPaymentByPeriod(c echo.Context) error {
+func GetSumOfBalanceOfPaymentByPeriodAPI(c echo.Context) error {
 	csvString, err := os.Open("balance-of-payments-september-2022.csv")
 
 	if err != nil {
@@ -166,5 +166,47 @@ func GetSumOfBalanceOfPaymentByPeriod(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, res)
+}
 
+func GetSumOfBalanceOfPaymentByStatusAPI(c echo.Context) error {
+	csvString, err := os.Open("balance-of-payments-september-2022.csv")
+
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+	}
+
+	// remember to close the file at the end of the program
+	defer csvString.Close()
+
+	df := dataframe.ReadCSV(csvString)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var resSumBalanceOfPaymentsByStatus []models.SumOfBalancePaymentsByStatus
+	selectedColumn := df.Select([]string{"STATUS"}).GroupBy("STATUS")
+
+	calcSumBalanceOfPaymentsByStatus := selectedColumn.Aggregation([]dataframe.AggregationType{dataframe.Aggregation_COUNT}, []string{"STATUS"}) // Maximum value in column "values",  Minimum value in column "values2"
+
+	finalSumBalanceOfPaymentsByStatus := calcSumBalanceOfPaymentsByStatus.Records()
+
+	// countByCountry := groupByCountry.Aggregation([]dataframe.AggregationType{dataframe.Aggregation_COUNT}, []string{"Country"})
+	for i, v := range finalSumBalanceOfPaymentsByStatus {
+		if i != 0 {
+			resSumBalanceOfPaymentsByStatus = append(resSumBalanceOfPaymentsByStatus, models.SumOfBalancePaymentsByStatus{
+				Status:       v[0],
+				STATUS_COUNT: v[1],
+			})
+		}
+	}
+
+	var res = models.Sumbalancestatus_response_single{
+		Code:    200,
+		Status:  "Success",
+		Message: "Success get data",
+		Data:    resSumBalanceOfPaymentsByStatus,
+	}
+
+	return c.JSON(http.StatusOK, res)
 }

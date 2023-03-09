@@ -18,3 +18,7 @@ BOPQ.S06AC000000000A,1975.03,517,,F,Dollars,6,Balance of Payments - BOP,"BPM6 Qu
 BOPQ.S06AC000000000A,1975.06,633,,F,Dollars,6,Balance of Payments - BOP,"BPM6 Quarterly, Balance of payments major components",Actual
 BOPQ.S06AC000000000A,1975.09,630,,F,Dollars,6,Balance of Payments - BOP,"BPM6 Quarterly, Balance of payments major components",Actual
 BOPQ.S06AC000000000A,1975.12,738,,F,Dollars,6,Balance of Payments - BOP,"BPM6 Quarterly, Balance of payments major components",Actual
+BOPA.S06ACDDDDDC6108,2015.03,,,C,Dollars,6,Balance of Payments - BOP,"BPM6 Annual, Directional basis flow of total investment by country",Actual
+BOPA.S06ACDDDDDC6108,2016.03,,,C,Dollars,6,Balance of Payments - BOP,"BPM6 Annual, Directional basis flow of total investment by country",Actual
+BOPA.S06ACDDDDDC6108,2021.03,90,,R,Dollars,6,Balance of Payments - BOP,"BPM6 Annual, Directional basis flow of total investment by country",Actual
+BOPA.S06ACDDDDDC8101,2021.03,19,,R,Dollars,6,Balance of Payments - BOP,"BPM6 Annual, Directional basis flow of total investment by country",Actual
