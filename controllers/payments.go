@@ -3,12 +3,14 @@ package controllers
 import (
 	"encoding/csv"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"project-alta-store/models"
 	"strconv"
 
 	"github.com/go-gota/gota/dataframe"
+	"github.com/go-gota/gota/series"
 	"github.com/labstack/echo"
 	// "github.com/go-gota/gota"
 	// "github.com/kniren/gota"
@@ -115,4 +117,54 @@ func GetTopTenOrgByNoeAPI(c echo.Context) error {
 		Data:    resStatsTopTenOrgByNoe,
 	}
 	return c.JSON(http.StatusOK, finalDataStatsTopTenOrgByNoe)
+}
+
+func GetSumOfBalanceOfPaymentByPeriod(c echo.Context) error {
+	csvString, err := os.Open("balance-of-payments-september-2022.csv")
+
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+	}
+
+	// remember to close the file at the end of the program
+	defer csvString.Close()
+
+	mean := func(s series.Series) series.Series {
+		floats := s.Float()
+		sum := 0.0
+		for _, f := range floats {
+			sum += f
+		}
+		return series.Floats(sum / float64(len(floats)))
+	}
+
+	df := dataframe.ReadCSV(csvString)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var resSumBalanceOfPaymentsByPeriode []models.SumOfBalancePaymentsByPeriod
+	selectedColumn := df.Select([]string{"Period"})
+
+	finalSumBalanceOfPaymentsByPeriode := selectedColumn.Capply(mean)
+	loadResultDf := finalSumBalanceOfPaymentsByPeriode.Records()
+
+	for i, v := range loadResultDf {
+		if i != 0 {
+			resSumBalanceOfPaymentsByPeriode = append(resSumBalanceOfPaymentsByPeriode, models.SumOfBalancePaymentsByPeriod{
+				SumOfBalanceOfPaymentByPeriod: v[0],
+			})
+		}
+	}
+
+	var res = models.Sumbalanceperiode_response_single{
+		Code:    200,
+		Status:  "Success",
+		Message: "Success get data",
+		Data:    resSumBalanceOfPaymentsByPeriode[0],
+	}
+
+	return c.JSON(http.StatusOK, res)
+
 }

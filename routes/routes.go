@@ -24,6 +24,7 @@ func Start() *echo.Echo {
 	e.GET("/test/payments", controllers.TestPaymentsAPI)
 	e.GET("/orgbycountry", controllers.GetStatisticOrgByCountryAPI)
 	e.GET("/orgbynoe", controllers.GetTopTenOrgByNoeAPI)
+	e.GET("/balancepaymentbyperiod", controllers.GetSumOfBalanceOfPaymentByPeriod)
 
 	return e
 }
